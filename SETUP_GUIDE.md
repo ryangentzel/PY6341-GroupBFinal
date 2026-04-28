@@ -29,13 +29,7 @@ touch .env
 Open it in VSCode and add this single line, replacing the placeholder with your real key:
 
 ```
-JP_API_KEY=your_actual_12_character_key_here
-```
-
-Now create `.env.example` (this one IS committed — it shows teammates what variables are needed without revealing any actual values):
-
-```
-JP_API_KEY=your_joshua_project_api_key_here
+Joshua_Project_API_Key=youractualkeyhere
 ```
 
 > ✅ Rule of thumb: `.env` = real secrets, stays on your machine only. `.env.example` = template with fake values, safe to commit.
