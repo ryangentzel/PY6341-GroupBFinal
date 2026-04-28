@@ -45,7 +45,7 @@ touch notebooks/.gitkeep outputs/charts/.gitkeep
 Your project should now look like this:
 
 ```
-joshua-project-viz/
+PY6341-GROUPBFINAL
 ├── .env.example
 ├── README.md
 ├── requirements.txt
