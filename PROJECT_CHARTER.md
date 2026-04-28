@@ -2,7 +2,9 @@
 
 ## Project Overview
 
-This project uses the Joshua Project REST API to pull structured data on people groups worldwide and produce research-grade visualizations exploring how **religion and Gospel access metrics vary across global regions**. The primary audience is the internal research team.
+This project builds an **interactive web application** using the Joshua Project REST API to help missionaries research unreached people groups and explore field placement opportunities. The tool visualizes **religion, Gospel access metrics, and demographic data across global regions** with dynamic filtering, search, and detail views.
+
+The application is built with **Plotly Dash** (Python web framework) and serves as a research platform for field strategy and missionary placement decisions. The primary audience is missionaries, organizational leadership, and research teams.
 
 This charter aligns with the class group project guidelines, incorporating role assignments, communication structure, task breakdown, testing, code review, documentation standards, and a final presentation deliverable.
 
@@ -11,24 +13,34 @@ This charter aligns with the class group project guidelines, incorporating role 
 ## Objectives & Scope
 
 ### Primary Goal
-Produce a set of clear, reproducible Python-generated visualizations that surface patterns in religious demographics and evangelical access across all 12 Joshua Project world regions.
+Build an interactive web application that allows missionaries and researchers to explore unreached people groups, filter by region/religion/demographic criteria, and access actionable intelligence for field placement and strategy decisions.
 
-### Specific Research Questions
-1. **Where is Islam/Hinduism/Buddhism most concentrated by population?**
-   - Stacked bar chart: religion composition by region
-   - Choropleth world map: colored by dominant religion or % Evangelical
+### Specific Features & Research Questions Addressed
 
-2. **Where is evangelical presence lowest relative to population?**
-   - Scatter plot: total population (x) vs. % Evangelical (y), colored by region, bubble size = number of unreached people groups per country
+**Exploration & Filtering**
+1. Filter people groups by region, religion, and Bible translation status
+2. Search by people group name or country
+3. View detailed profiles including population, language, Gospel resources, and unreached status
 
-3. **How does Gospel resource access vary by religious bloc?**
-   - Bar chart: average Bible translation status score broken down by primary religion
-   - Highlights which religious populations have the least scripture access
+**Visualizations & Insights**
+1. **Religion composition by world region** — Stacked bar chart showing religious demographic concentration
+2. **Population vs. Gospel access** — Scatter plot: total population vs. % Evangelical, colored by region and religion
+3. **Bible translation gap analysis** — Bar chart: average Scripture access by religion and region
+4. **Frontier & unreached profiles** — Table/dashboard showing highest-priority unreached groups by filtering criteria
+5. **Geographic visualization** — Optional choropleth or marker maps for spatial exploration
+
+**Research Questions**
+- Where is Islam/Hinduism/Buddhism most concentrated, and what is their Gospel access?
+- Which unreached people groups have the largest populations?
+- Where is Scripture translation most lacking?
+- Which regions have the highest concentration of frontier unreached people groups?
+- How do demographic and Gospel access trends vary across the 12 world regions?
 
 ### Out of Scope (v1)
 - Time-series / trend analysis (the API is a current snapshot, not historical)
-- Public-facing web deployment
+- User authentication / roles (open research tool)
 - Machine learning or predictive modeling
+- Data export / reporting workflows (v2+)
 
 ---
 
@@ -38,11 +50,12 @@ Assign these based on each teammate's strengths and learning goals. One person c
 
 | Role | Responsibilities |
 |---|---|
-| **Data Engineer** | Writes `fetch.py` and `clean.py`; owns API integration, caching, and data transformation |
-| **Visualization Lead** | Writes `visualize.py`; owns chart design and library choices |
-| **Documentation Lead** | Maintains README, docstrings, and the project wiki; ensures code is understandable |
-| **QA / Testing Lead** | Writes unit tests, validates data integrity, leads code review checklist |
-| **Project Manager** | Tracks task board (Trello/Asana/GitHub Projects), runs standups, manages deadlines |
+| **Backend / Data Engineer** | Owns `fetch.py` and `clean.py`; API integration, caching, data transformation, and data validation |
+| **Frontend / App Developer** | Owns `app.py` (Dash layout and callbacks); builds interactive UI, filters, and detail views |
+| **Visualization Engineer** | Designs and implements Plotly charts within Dash; owns color schemes, axes, annotations |
+| **Documentation Lead** | Maintains README, docstrings, setup guide, and API documentation; ensures code clarity |
+| **QA / Testing Lead** | Writes unit tests for data pipeline; validates API responses; performs manual testing of UI flows |
+| **Project Manager** | Tracks task board (GitHub Projects), runs standups, manages milestones and deadlines |
 
 > Roles are collaborative, not siloed — everyone reviews each other's code.
 
@@ -84,20 +97,37 @@ Assign these based on each teammate's strengths and learning goals. One person c
 
 ## Deliverables
 
-### Code Deliverables
+### Application Deliverables
 
-| # | Deliverable | Type | Library |
-|---|---|---|---|
-| 1 | Religion composition by world region | Stacked bar chart | `matplotlib` / `seaborn` |
-| 2 | World map: % Evangelical by country | Choropleth | `plotly` |
-| 3 | Population vs. % Evangelical | Scatter plot | `plotly` |
-| 4 | Bible translation access by religion | Bar chart | `matplotlib` |
+| Component | Owner | Status |
+|---|---|---|
+| **Dash Web App** (`app.py`) | Frontend Developer | Interactive dashboard with filters, search, and detail views |
+| **Data Pipeline** (`fetch.py`, `clean.py`) | Backend Engineer | API integration, caching, data transformation |
+| **Interactive Filters** | Frontend Developer | Region, Religion, Bible Status, Unreached Status dropdowns |
+| **Embedded Charts** | Visualization Engineer | 3–4 Plotly visualizations (stacked bar, scatter, etc.) |
+| **Detail Panel** | Frontend Developer | Pop-up/modal showing full profile of selected people group |
+| **Search Functionality** | Frontend Developer | Search by people group name or country |
 
-### Process Deliverables (Required by Guidelines)
+### Chart Deliverables (Embedded in Web App)
+
+| Chart | Description | Library |
+|---|---|---|
+| 1 | Religion composition by world region | Stacked bar chart (Plotly) |
+| 2 | Population vs. % Evangelical | Scatter plot (Plotly) |
+| 3 | Bible translation access by religion | Bar chart (Plotly) |
+| 4 | Unreached people groups by region | Horizontal bar or table (Plotly/HTML) |
+
+### Process & Documentation Deliverables
 
 | Deliverable | Owner | Notes |
 |---|---|---|
-| This project charter | Project Manager | Living document, update as scope changes |
+| Project Charter (this document) | Project Manager | Living document, updated as scope changes |
+| Setup Guide | Documentation Lead | Step-by-step local setup for all team members |
+| README.md | Documentation Lead | Architecture, feature overview, running the app |
+| Code docstrings | All | Comprehensive function/class documentation |
+| Unit tests | QA Lead | Test coverage for `fetch.py` and `clean.py` |
+| User guide / demo video | Project Manager | How to use the web app for research |
+| Final presentation | Project Manager | Project overview, demo, lessons learned |
 | README.md | Documentation Lead | Setup instructions, project summary, attribution |
 | Inline docstrings on all functions | All | Required before code review approval |
 | Unit tests for `fetch.py` and `clean.py` | QA Lead | `pytest`, targeting data shape and type validation |
