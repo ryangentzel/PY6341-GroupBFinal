@@ -8,7 +8,7 @@ Run this file directly to test: python src/clean.py
 """
 
 import pandas as pd
-from .fetch import fetch_people_groups
+from .fetch import fetch_people_groups, fetch_countries
 
 
 # ── Column selection ──────────────────────────────────────────────────────────
@@ -33,6 +33,7 @@ KEEP_COLUMNS = [
     "JPScalePC",           # JP progress scale as a percentage label
     "PeopleID3",           # Unique JP people group ID (useful for linking)
     "ROL3",                # Language code (ISO 639-3)
+    "CountryURL",          # Joshua Project country page URL
 ]
 
 
@@ -155,6 +156,43 @@ def summarize(df: pd.DataFrame) -> None:
     for region, count in region_counts.items():
         print(f"    {region:<40} {count:>5,}")
     print("──────────────────────────────────────────────────────────\n")
+
+
+def load_countries() -> pd.DataFrame:
+    """
+    Fetch JP country-level summary statistics and return a clean DataFrame.
+
+    Each row is one country. Key columns returned:
+        Ctry, CountryURL, Population, PercentEvangelical,
+        PercentChristianAdherents, PeopleGroups, PeopleGroupsLR,
+        PeopleGroupsFrontier, RegionName, PrimaryLanguages, PrimaryReligions
+
+    Returns an empty DataFrame (with expected columns) if the endpoint
+    is unavailable, so callers can handle gracefully.
+    """
+    COUNTRY_COLS = [
+        "Ctry", "CountryURL", "Population",
+        "PercentEvangelical", "PercentChristianAdherents",
+        "PeopleGroups", "PeopleGroupsLR", "PeopleGroupsFrontier",
+        "RegionName", "PrimaryLanguages", "PrimaryReligions",
+    ]
+    try:
+        raw = fetch_countries()
+        df  = pd.DataFrame(raw)
+    except Exception as e:
+        print(f"  Warning: could not load country data — {e}")
+        return pd.DataFrame(columns=COUNTRY_COLS)
+
+    available = [c for c in COUNTRY_COLS if c in df.columns]
+    df = df[available].copy()
+
+    for col in ["Population", "PercentEvangelical", "PercentChristianAdherents",
+                "PeopleGroups", "PeopleGroupsLR", "PeopleGroupsFrontier"]:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors="coerce")
+
+    print(f"  Country records loaded: {len(df):,}")
+    return df.reset_index(drop=True)
 
 
 # ── Run directly for testing ──────────────────────────────────────────────────

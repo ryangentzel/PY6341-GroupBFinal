@@ -33,11 +33,6 @@ def fetch_endpoint(endpoint: str, params: dict = None, force_refresh: bool = Fal
     list
         Parsed JSON response as a Python list of dicts
     """
-    if API_KEY is None:
-        raise ValueError(
-            "Joshua Project API Key not found. Make sure your .env file exists and contains Joshua Project API Key=your_key_here"
-        )
-
     # Build a safe filename from the endpoint for caching
     cache_filename = endpoint.strip("/").replace("/", "_")
     cache_path = CACHE_DIR / f"{cache_filename}.json"
@@ -47,6 +42,12 @@ def fetch_endpoint(endpoint: str, params: dict = None, force_refresh: bool = Fal
         print(f"[cache] Loading from {cache_path}")
         with open(cache_path, "r") as f:
             return json.load(f)
+
+    if API_KEY is None:
+        raise ValueError(
+            "Joshua Project API Key not found. Make sure your .env file exists "
+            "and contains Joshua_Project_API_Key=your_key_here"
+        )
 
     # Build request parameters
     all_params = {"api_key": API_KEY}
@@ -72,14 +73,62 @@ def fetch_endpoint(endpoint: str, params: dict = None, force_refresh: bool = Fal
 # Main functions to fetch data with optional force refresh
 
 def fetch_people_groups(force_refresh: bool = False) -> list:
-    """Fetch all people groups in all countries.
+    """Fetch all people groups in all countries, handling API pagination.
+
+    The JP API returns 250 records per page by default. This function loops
+    through every page until the API returns an empty response, then saves
+    the full combined dataset to cache.
 
     Returns
     -------
     list
-        List of people group dicts from the API
+        Complete list of people group dicts from the API (~17,000 records)
     """
-    return fetch_endpoint("/people_groups.json", force_refresh=force_refresh)
+    cache_path = CACHE_DIR / "people_groups.json.json"
+
+    if cache_path.exists() and not force_refresh:
+        print(f"[cache] Loading from {cache_path}")
+        with open(cache_path, "r") as f:
+            return json.load(f)
+
+    if API_KEY is None:
+        raise ValueError(
+            "Joshua Project API Key not found. Make sure your .env file exists "
+            "and contains Joshua_Project_API_Key=your_key_here"
+        )
+
+    all_records = []
+    page = 1
+    while True:
+        url = f"{BASE_URL}/people_groups.json"
+        params = {"api_key": API_KEY, "page": page}
+        print(f"[api] Fetching page {page} ...")
+        response = requests.get(url, params=params)
+        response.raise_for_status()
+        page_data = response.json()
+        if not page_data:
+            break
+        all_records.extend(page_data)
+        if len(page_data) < 250:
+            break
+        page += 1
+
+    print(f"[api] Fetched {len(all_records):,} total people group records.")
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    with open(cache_path, "w") as f:
+        json.dump(all_records, f, indent=2)
+    print(f"[cache] Saved to {cache_path}")
+    return all_records
+
+def fetch_countries(force_refresh: bool = False) -> list:
+    """Fetch country-level summary statistics from Joshua Project.
+
+    Returns one record per country with fields like Population,
+    PercentEvangelical, PeopleGroupsLR, PeopleGroupsFrontier, etc.
+    These match what JP displays on their country detail pages.
+    """
+    return fetch_endpoint("/countries.json", force_refresh=force_refresh)
+
 
 def fetch_daily_unreached() -> dict:
     """
