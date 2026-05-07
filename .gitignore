@@ -23,3 +23,7 @@ env/
 
 # macOS
 .DS_Store
+
+# === CACHE — large data files ===
+data/cache/
+*.json  # Cached API responses (if in root)

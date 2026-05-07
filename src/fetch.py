@@ -35,6 +35,9 @@ def fetch_endpoint(endpoint: str, params: dict = None, force_refresh: bool = Fal
     """
     # Build a safe filename from the endpoint for caching
     cache_filename = endpoint.strip("/").replace("/", "_")
+    # Remove .json extension if present (we'll add it back)
+    if cache_filename.endswith(".json"):
+        cache_filename = cache_filename[:-5]
     cache_path = CACHE_DIR / f"{cache_filename}.json"
 
     # Return cached data if it exists and we're not forcing a refresh
@@ -84,7 +87,7 @@ def fetch_people_groups(force_refresh: bool = False) -> list:
     list
         Complete list of people group dicts from the API (~17,000 records)
     """
-    cache_path = CACHE_DIR / "people_groups.json.json"
+    cache_path = CACHE_DIR / "people_groups.json"
 
     if cache_path.exists() and not force_refresh:
         print(f"[cache] Loading from {cache_path}")
